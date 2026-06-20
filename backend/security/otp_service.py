@@ -1,7 +1,6 @@
 import random
 from django.conf import settings
 from .models import OTPVerification
-from .otp_sender import send_mail_async
 
 def generate_otp():
     return str(
@@ -12,6 +11,7 @@ def generate_otp():
     )
 
 def create_and_send_otp(user):
+    from .otp_sender import send_mail_async
     otp = generate_otp()
     OTPVerification.objects.create(
         user=user,

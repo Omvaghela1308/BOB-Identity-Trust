@@ -2,7 +2,6 @@ import threading
 from django.core.mail import send_mail
 from django.conf import settings
 from .models import OTPVerification
-from .otp_service import generate_otp
 
 def send_mail_async(subject, message, recipient_list):
     """
@@ -26,6 +25,7 @@ def send_mail_async(subject, message, recipient_list):
     thread.start()
 
 def create_and_send_otp(user):
+    from .otp_service import generate_otp
     otp = generate_otp()
     OTPVerification.objects.create(
         user=user,
