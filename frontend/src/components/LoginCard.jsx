@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Shield, Mail, KeyRound, AlertTriangle, User, Phone, FileText, Lock, CheckCircle2 } from 'lucide-react';
-import { sendOtp, verifyOtp } from '../utils/api';
+import { sendOtp, verifyOtp, registerUser } from '../utils/api';
 
 export default function LoginCard({ onLoginSuccess, onRegisterSuccess }) {
   const [view, setView] = useState('login'); // 'login' or 'register'
@@ -107,20 +107,9 @@ export default function LoginCard({ onLoginSuccess, onRegisterSuccess }) {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: regUsername,
-          email: regEmail,
-          phone: regPhone,
-          aadhaar: regAadhaar,
-          password: regPassword
-        })
-      });
-      const data = await res.json();
+      const data = await registerUser(regUsername, regEmail, regPhone, regAadhaar, regPassword);
 
-      if (res.ok && data.success) {
+      if (data.success) {
         if (onRegisterSuccess) {
           onRegisterSuccess('Identity Enrollment Complete - Corporate Credentials Registered!');
         }
@@ -140,7 +129,7 @@ export default function LoginCard({ onLoginSuccess, onRegisterSuccess }) {
         setError(data.message || 'Registration failed.');
       }
     } catch (err) {
-      setError('Registration failed. Make sure the backend server is running.');
+      setError(err.message || 'Registration failed. Make sure the backend server is running.');
     } finally {
       setLoading(false);
     }

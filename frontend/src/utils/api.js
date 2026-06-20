@@ -93,3 +93,25 @@ export async function getAdminUsersSummary(token) {
   }
   return response.json();
 }
+
+/**
+ * Register a new corporate identity.
+ */
+export async function registerUser(username, email, phone, aadhaar, password) {
+  const response = await fetch(`${API_BASE_URL}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      username,
+      email,
+      phone,
+      aadhaar,
+      password,
+    }),
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Registration failed');
+  }
+  return response.json();
+}
