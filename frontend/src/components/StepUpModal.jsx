@@ -3,45 +3,23 @@ import { ShieldAlert, X, AlertTriangle } from 'lucide-react';
 import { verifyStepUp } from '../utils/api';
 
 export default function StepUpModal({ isOpen, onClose, transactionDetails, email, trustScore, onVerificationSuccess }) {
-  const [otp, setOtp] = useState(['', '', '', '']);
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  
-  const otpRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
 
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => otpRefs[0].current?.focus(), 100);
       setError('');
-      setOtp(['', '', '', '']);
+      setPassword('');
     }
   }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const handleOtpChange = (index, value) => {
-    if (value && isNaN(value)) return;
-
-    const newOtp = [...otp];
-    newOtp[index] = value.slice(-1);
-    setOtp(newOtp);
-
-    if (value && index < 3) {
-      otpRefs[index + 1].current?.focus();
-    }
-  };
-
-  const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      otpRefs[index - 1].current?.focus();
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const code = otp.join('');
-    if (code.length !== 4) {
-      setError('Please enter the 4-digit verification code.');
+    if (!password) {
+      setError('Please enter your password to authorize the transaction.');
       return;
     }
 
@@ -49,7 +27,7 @@ export default function StepUpModal({ isOpen, onClose, transactionDetails, email
     setError('');
 
     try {
-      const res = await verifyStepUp(email, code, transactionDetails.amount, transactionDetails.recipient);
+      const res = await verifyStepUp(email, password, transactionDetails.amount, transactionDetails.recipient);
       if (res.success) {
         onVerificationSuccess(res.message);
         onClose();
@@ -106,24 +84,20 @@ export default function StepUpModal({ isOpen, onClose, transactionDetails, email
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-[10px] font-mono text-gray-400 uppercase tracking-widest text-center mb-3">
-              Enter Transaction Verification OTP
+              Enter Account Password to Authorize
             </label>
-            <div className="flex justify-center gap-4">
-              {otp.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={otpRefs[index]}
-                  type="text"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleOtpChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="w-12 h-14 text-center text-xl font-bold bg-[#0d0d0e] border border-cyber-red/20 rounded-lg text-cyber-red font-mono focus:outline-none focus:border-cyber-red focus:ring-2 focus:ring-cyber-red/20"
-                />
-              ))}
+            <div className="flex justify-center">
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter password"
+                className="w-full max-w-xs px-4 py-2 bg-black/40 border border-cyber-red/20 rounded-lg text-cyber-red text-center text-sm font-mono focus:outline-none focus:border-cyber-red focus:ring-1 focus:ring-cyber-red/30"
+              />
             </div>
             <p className="text-[9px] text-gray-500 font-mono text-center mt-2">
-              (Use Test OTP: 1234)
+              (Use Test Code: 1234 or your account password)
             </p>
           </div>
 

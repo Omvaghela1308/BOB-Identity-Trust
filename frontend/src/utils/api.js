@@ -29,6 +29,22 @@ export async function verifyOtp(email, otp) {
 }
 
 /**
+ * Log in a user using email and password.
+ */
+export async function loginUser(email, password) {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Login failed');
+  }
+  return response.json();
+}
+
+/**
  * Simulate a specific security risk vector.
  */
 export async function simulateRisk(riskVector) {
@@ -55,15 +71,15 @@ export async function transferFunds(email, amount, recipient) {
 /**
  * Verify step-up secondary OTP for a high-risk transfer.
  */
-export async function verifyStepUp(email, otp, amount, recipient) {
+export async function verifyStepUp(email, password, amount, recipient) {
   const response = await fetch(`${API_BASE_URL}/transaction/verify-stepup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, otp, amount, recipient }),
+    body: JSON.stringify({ email, password, amount, recipient }),
   });
   if (!response.ok) {
     const errorData = await response.json();
-    throw new Error(errorData.message || 'MFA OTP Verification failed');
+    throw new Error(errorData.message || 'MFA password verification failed');
   }
   return response.json();
 }

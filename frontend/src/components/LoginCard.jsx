@@ -1,12 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Shield, Mail, KeyRound, AlertTriangle, User, Phone, FileText, Lock, CheckCircle2 } from 'lucide-react';
-import { sendOtp, verifyOtp, registerUser } from '../utils/api';
+import { registerUser, loginUser } from '../utils/api';
 
 export default function LoginCard({ onLoginSuccess, onRegisterSuccess }) {
   const [view, setView] = useState('login'); // 'login' or 'register'
-  const [step, setStep] = useState(1); // 1 = Email, 2 = OTP (only for login)
   const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState(['', '', '', '']);
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
@@ -19,19 +18,14 @@ export default function LoginCard({ onLoginSuccess, onRegisterSuccess }) {
   const [regPassword, setRegPassword] = useState('');
   const [regSuccess, setRegSuccess] = useState('');
 
-  const otpRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
-
-  // Focus first OTP box on entering Step 2
-  useEffect(() => {
-    if (view === 'login' && step === 2) {
-      setTimeout(() => otpRefs[0].current?.focus(), 100);
-    }
-  }, [step, view]);
-
-  const handleSendOtp = async (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     if (!email || !email.includes('@')) {
       setError('Please enter a valid corporate email address.');
+      return;
+    }
+    if (!password) {
+      setError('Please enter your password.');
       return;
     }
 
@@ -40,55 +34,12 @@ export default function LoginCard({ onLoginSuccess, onRegisterSuccess }) {
     setInfo('');
 
     try {
-      const res = await sendOtp(email);
-      if (res.success) {
-        setStep(2);
-        setInfo(res.message);
-      } else {
-        setError(res.message || 'Failed to send OTP.');
-      }
-    } catch (err) {
-      setError('Connection to security gateway failed.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOtpChange = (index, value) => {
-    if (value && isNaN(value)) return;
-    const newOtp = [...otp];
-    newOtp[index] = value.slice(-1);
-    setOtp(newOtp);
-
-    if (value && index < 3) {
-      otpRefs[index + 1].current?.focus();
-    }
-  };
-
-  const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      otpRefs[index - 1].current?.focus();
-    }
-  };
-
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    const code = otp.join('');
-    if (code.length !== 4) {
-      setError('Please enter the 4-digit verification code.');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
-    try {
-      const res = await verifyOtp(email, code);
+      const res = await loginUser(email, password);
       if (res.success) {
         onLoginSuccess(res.user, res.session);
       }
     } catch (err) {
-      setError(err.message || 'Invalid OTP code.');
+      setError(err.message || 'Login failed. Invalid credentials.');
     } finally {
       setLoading(false);
     }
@@ -185,81 +136,49 @@ export default function LoginCard({ onLoginSuccess, onRegisterSuccess }) {
 
       {view === 'login' ? (
         /* Login Card View */
-        step === 1 ? (
-          <form onSubmit={handleSendOtp} className="space-y-4">
-            <div>
-              <label className="block text-[10px] font-mono text-gray-400 uppercase tracking-widest mb-2 pl-1">
-                Corporate Email Address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="identity@bankofbaroda.com"
-                  className="w-full pl-10 pr-4 py-2.5 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-600 text-sm font-mono focus:outline-none focus:border-cyber-blue focus:ring-1 focus:ring-cyber-blue"
-                />
-              </div>
+        <form onSubmit={handleLoginSubmit} className="space-y-4">
+          <div>
+            <label className="block text-[10px] font-mono text-gray-400 uppercase tracking-widest mb-2 pl-1">
+              Corporate Email Address
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="identity@bankofbaroda.com"
+                className="w-full pl-10 pr-4 py-2.5 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-600 text-sm font-mono focus:outline-none focus:border-cyber-blue focus:ring-1 focus:ring-cyber-blue"
+              />
             </div>
+          </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2.5 bg-cyber-blue hover:bg-blue-600 text-white font-mono font-bold text-xs uppercase tracking-widest rounded-xl border border-cyber-blue/40 shadow-[0_0_15px_rgba(59,130,246,0.2)] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              {loading ? 'Sending Request...' : 'Send 4-Digit OTP'}
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleVerifyOtp} className="space-y-5">
-            <div>
-              <label className="block text-[10px] font-mono text-gray-400 uppercase tracking-widest text-center mb-3">
-                Enter Verification OTP
-              </label>
-              <div className="flex justify-center gap-3">
-                {otp.map((digit, index) => (
-                  <input
-                    key={index}
-                    ref={otpRefs[index]}
-                    type="text"
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) => handleOtpChange(index, e.target.value)}
-                    onKeyDown={(e) => handleKeyDown(index, e)}
-                    className="w-12 h-14 text-center text-xl font-bold bg-[#0d0d0e] border border-white/10 rounded-xl text-cyber-blue font-mono focus:outline-none focus:border-cyber-blue focus:ring-2 focus:ring-cyber-blue/30"
-                  />
-                ))}
-              </div>
+          <div>
+            <label className="block text-[10px] font-mono text-gray-400 uppercase tracking-widest mb-2 pl-1">
+              Password
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                className="w-full pl-10 pr-4 py-2.5 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-600 text-sm font-mono focus:outline-none focus:border-cyber-blue focus:ring-1 focus:ring-cyber-blue"
+              />
             </div>
+          </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2.5 bg-cyber-blue hover:bg-blue-600 text-white font-mono font-bold text-xs uppercase tracking-widest rounded-xl border border-cyber-blue/40 shadow-[0_0_15px_rgba(59,130,246,0.2)] transition-all disabled:opacity-50"
-            >
-              {loading ? 'Authenticating...' : 'Verify & Login'}
-            </button>
-
-            <div className="flex justify-between items-center font-mono text-[10px] px-1">
-              <button
-                type="button"
-                onClick={() => setStep(1)}
-                className="text-cyber-blue hover:underline"
-              >
-                Change Email
-              </button>
-              <button
-                type="button"
-                onClick={handleSendOtp}
-                className="text-gray-500 hover:text-gray-400"
-              >
-                Resend OTP
-              </button>
-            </div>
-          </form>
-        )
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-2.5 bg-cyber-blue hover:bg-blue-600 text-white font-mono font-bold text-xs uppercase tracking-widest rounded-xl border border-cyber-blue/40 shadow-[0_0_15px_rgba(59,130,246,0.2)] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {loading ? 'Authenticating...' : 'Login'}
+          </button>
+        </form>
       ) : (
         /* Register Card View */
         <form onSubmit={handleRegisterSubmit} className="space-y-4">

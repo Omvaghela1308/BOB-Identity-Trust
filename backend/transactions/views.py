@@ -53,26 +53,11 @@ class TransferView(APIView):
             })
 
         elif risk_vector == 'NewDevice':
-            # Medium Risk - Step-up challenge required
-            # Generate and save step-up OTP
-            otp = str(random_otp := 1234) # Accept test OTP 1234 as mentioned in UI
-            OTPVerification.objects.create(
-                user=user,
-                otp=str(otp)
-            )
-
-            # Send step-up OTP to user email asynchronously
-            from security.otp_sender import send_mail_async
-            send_mail_async(
-                "Transaction Step-up Verification OTP",
-                f"Your Bank of Baroda security step-up verification code is {otp}. This code is required to authorize the transfer of ₹{amount:,.2f} to {recipient}.",
-                [user.email]
-            )
-
+            # Medium Risk - Step-up password challenge required
             return Response({
                 "success": True,
                 "status": "step-up-required",
-                "message": "Secondary MFA authentication challenge required."
+                "message": "Secondary password verification challenge required."
             })
 
         else: # ImpossibleTravel
@@ -108,7 +93,7 @@ class TransferView(APIView):
 class VerifyStepUpView(APIView):
     def post(self, request):
         email = request.data.get('email')
-        otp = request.data.get('otp')
+        password = request.data.get('password') or request.data.get('otp')
         amount_str = request.data.get('amount', 0)
         recipient = request.data.get('recipient')
 
@@ -124,23 +109,15 @@ class VerifyStepUpView(APIView):
             if not user:
                 return Response({"success": False, "message": "User not found"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Allow test OTP 1234 or verify database OTP
-        otp_valid = False
-        if otp == '1234':
-            otp_valid = True
-        else:
-            otp_record = OTPVerification.objects.filter(
-                user=user,
-                otp=otp,
-                is_verified=False
-            ).last()
-            if otp_record and not otp_record.is_expired():
-                otp_record.is_verified = True
-                otp_record.save()
-                otp_valid = True
+        # Verify password or allow test code '1234'
+        is_valid = False
+        if password == '1234':
+            is_valid = True
+        elif password and user.check_password(password):
+            is_valid = True
 
-        if not otp_valid:
-            return Response({"success": False, "message": "Invalid transaction verification OTP code"}, status=status.HTTP_400_BAD_REQUEST)
+        if not is_valid:
+            return Response({"success": False, "message": "Invalid authorization password"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Create successful transaction (MFA verified)
         transaction = Transaction.objects.create(

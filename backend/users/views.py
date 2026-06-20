@@ -165,3 +165,76 @@ class ProfileView(APIView):
             'phone': user.phone,
             'aadhaar': user.aadhaar,
         })
+
+class LoginView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+        
+        if not email or not password:
+            return Response({"success": False, "message": "Email and password are required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        user = User.objects.filter(email=email).first()
+        if not user:
+            # Fallback to username check
+            user = User.objects.filter(username=email).first()
+            if not user:
+                return Response({"success": False, "message": "Invalid email/username or password"}, status=status.HTTP_401_UNAUTHORIZED)
+                
+        # Authenticate user
+        from django.contrib.auth import authenticate
+        authenticated_user = authenticate(username=user.username, password=password)
+        if not authenticated_user:
+            return Response({"success": False, "message": "Invalid email/username or password"}, status=status.HTTP_401_UNAUTHORIZED)
+            
+        # Determine session characteristics based on active risk vector
+        risk_vector = getattr(state, 'ACTIVE_RISK_VECTOR', 'Normal')
+        
+        if risk_vector == 'Normal':
+            trust_score = 98
+            risk_level = 'LOW'
+            ip = request.META.get('REMOTE_ADDR', '127.0.0.1')
+            location = 'Mumbai, India'
+            device_id = 'DEV-BOB-9842'
+        elif risk_vector == 'NewDevice':
+            trust_score = 65
+            risk_level = 'MEDIUM'
+            ip = '192.168.1.150'
+            location = 'Bangalore, India'
+            device_id = 'DEV-BOB-ANOMALY-99'
+        else: # ImpossibleTravel
+            trust_score = 24
+            risk_level = 'HIGH'
+            ip = '85.25.43.11'
+            location = 'London, UK'
+            device_id = 'DEV-BOB-ANOMALY-99'
+            
+        # Log to LoginHistory
+        LoginHistory.objects.create(
+            user=authenticated_user,
+            ip=ip,
+            location=location,
+            risk_score=100 - trust_score,
+            status='SUCCESS'
+        )
+        
+        # Generate JWT
+        refresh = RefreshToken.for_user(authenticated_user)
+        
+        return Response({
+            "success": True,
+            "user": {
+                "username": authenticated_user.username,
+                "email": authenticated_user.email,
+                "phone": authenticated_user.phone,
+                "aadhaar": authenticated_user.aadhaar
+            },
+            "session": {
+                "trustScore": trust_score,
+                "riskLevel": risk_level,
+                "ip": ip,
+                "location": location,
+                "deviceId": device_id,
+                "token": str(refresh.access_token)
+            }
+        })
