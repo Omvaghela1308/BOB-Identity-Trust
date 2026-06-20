@@ -61,20 +61,13 @@ class TransferView(APIView):
                 otp=str(otp)
             )
 
-            # Send step-up OTP to user email
-            from django.conf import settings
-            from django.core.mail import send_mail
-            try:
-                send_mail(
-                    "Transaction Step-up Verification OTP",
-                    f"Your Bank of Baroda security step-up verification code is {otp}. This code is required to authorize the transfer of ₹{amount:,.2f} to {recipient}.",
-                    settings.DEFAULT_FROM_EMAIL,
-                    [user.email],
-                    fail_silently=False
-                )
-                print(f"[SECURITY] Transaction step-up OTP successfully sent to: {user.email}")
-            except Exception as e:
-                print(f"[SECURITY] SMTP Transaction email dispatch failed! Details: {str(e)}")
+            # Send step-up OTP to user email asynchronously
+            from security.otp_sender import send_mail_async
+            send_mail_async(
+                "Transaction Step-up Verification OTP",
+                f"Your Bank of Baroda security step-up verification code is {otp}. This code is required to authorize the transfer of ₹{amount:,.2f} to {recipient}.",
+                [user.email]
+            )
 
             return Response({
                 "success": True,

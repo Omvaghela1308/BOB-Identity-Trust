@@ -53,20 +53,13 @@ class SendOTPView(APIView):
         # Print for development console logs
         print(f"\n========================================\n[SECURITY] OTP {otp} generated for {email}\n========================================\n")
         
-        # Send mail via SMTP
-        from django.conf import settings
-        from django.core.mail import send_mail
-        try:
-            send_mail(
-                "Identity Verification OTP",
-                f"Your identity verification OTP is {otp}",
-                settings.DEFAULT_FROM_EMAIL,
-                [user.email],
-                fail_silently=False
-            )
-            print(f"[SECURITY] OTP successfully dispatched to email: {user.email}")
-        except Exception as e:
-            print(f"[SECURITY] SMTP Email dispatch failed! Details: {str(e)}")
+        # Send mail via SMTP asynchronously to prevent blocking Gunicorn workers
+        from security.otp_sender import send_mail_async
+        send_mail_async(
+            "Identity Verification OTP",
+            f"Your identity verification OTP is {otp}",
+            [user.email]
+        )
             
         return Response({
             "success": True,
