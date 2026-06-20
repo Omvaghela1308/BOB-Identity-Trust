@@ -47,11 +47,11 @@ export async function loginUser(email, password) {
 /**
  * Simulate a specific security risk vector.
  */
-export async function simulateRisk(riskVector) {
+export async function simulateRisk(riskVector, email) {
   const response = await fetch(`${API_BASE_URL}/risk/simulate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ riskVector }),
+    body: JSON.stringify({ riskVector, email }),
   });
   return response.json();
 }

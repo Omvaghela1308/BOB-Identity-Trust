@@ -102,7 +102,7 @@ class VerifyOTPView(APIView):
             return Response({"success": False, "message": "Invalid OTP code. Use test OTP or check console logs."}, status=status.HTTP_400_BAD_REQUEST)
         
         # Determine session characteristics based on active risk vector
-        risk_vector = getattr(state, 'ACTIVE_RISK_VECTOR', 'Normal')
+        risk_vector = getattr(state, 'ACTIVE_RISK_VECTORS', {}).get(email, 'Normal')
         
         if risk_vector == 'Normal':
             trust_score = 98
@@ -188,7 +188,7 @@ class LoginView(APIView):
             return Response({"success": False, "message": "Invalid email/username or password"}, status=status.HTTP_401_UNAUTHORIZED)
             
         # Determine session characteristics based on active risk vector
-        risk_vector = getattr(state, 'ACTIVE_RISK_VECTOR', 'Normal')
+        risk_vector = getattr(state, 'ACTIVE_RISK_VECTORS', {}).get(email, 'Normal')
         
         if risk_vector == 'Normal':
             trust_score = 98

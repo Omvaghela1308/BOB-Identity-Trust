@@ -33,7 +33,7 @@ class TransferView(APIView):
                 return Response({"success": False, "message": "Sender identity not found"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Inspect simulated risk vector
-        risk_vector = getattr(state, 'ACTIVE_RISK_VECTOR', 'Normal')
+        risk_vector = getattr(state, 'ACTIVE_RISK_VECTORS', {}).get(user.email, 'Normal')
 
         if risk_vector == 'Normal':
             # Auto-approved transaction (Low Risk)

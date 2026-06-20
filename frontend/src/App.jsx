@@ -21,7 +21,7 @@ import AdminConsoleView from './components/AdminConsoleView';
 import { simulateRisk, transferFunds, getAdminMetrics } from './utils/api';
 
 // Self-contained Transactions Audit Trail Table Component
-function TransactionsTable({ refreshTrigger }) {
+function TransactionsTable({ refreshTrigger, currentUser }) {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,10 +29,11 @@ function TransactionsTable({ refreshTrigger }) {
     const fetchLogs = async () => {
       try {
         const data = await getAdminMetrics();
-        // Filter events related to transactions
+        // Filter events related to transactions and belong to the logged-in user
         const txs = data.logs.filter(
-          log => log.event.toLowerCase().includes('transfer') || 
-                 log.event.toLowerCase().includes('transaction')
+          log => (log.event.toLowerCase().includes('transfer') || 
+                  log.event.toLowerCase().includes('transaction')) &&
+                 (log.user === currentUser?.email || log.user === currentUser?.username)
         );
         setLogs(txs);
       } catch (err) {
@@ -42,7 +43,7 @@ function TransactionsTable({ refreshTrigger }) {
       }
     };
     fetchLogs();
-  }, [refreshTrigger]);
+  }, [refreshTrigger, currentUser]);
 
   const getRiskColor = (risk) => {
     switch (risk.toUpperCase()) {
@@ -179,7 +180,7 @@ export default function App() {
   const handleRiskVectorChange = async (newVector) => {
     setRiskVector(newVector);
     try {
-      const res = await simulateRisk(newVector);
+      const res = await simulateRisk(newVector, user?.email);
       if (res.success && session) {
         setSession(prev => ({
           ...prev,
@@ -623,7 +624,7 @@ export default function App() {
               </div>
 
               {/* Transactions Table Widget */}
-              <TransactionsTable refreshTrigger={adminRefresh} />
+              <TransactionsTable refreshTrigger={adminRefresh} currentUser={user} />
             </div>
           )}
         </main>

@@ -18,11 +18,40 @@ class AdminMetricsView(APIView):
         insider_alerts = db_alerts
         kyc_fraud = db_fraud
 
-        # Telemetry charts - showing a simple baseline (0) to actual current stats
-        charts = [
-            { "hour": "00:00", "ATO": 0, "Insider": 0 },
-            { "hour": "24:00", "ATO": blocked_ato, "Insider": insider_alerts }
-        ]
+        # Generate actual dynamic hourly telemetry charts for the last 6 hours
+        import datetime
+        now = timezone.now()
+        charts = []
+        
+        # No seed/dummy values: charts show actual database metrics only
+        base_ato = [0, 0, 0, 0, 0, 0]
+        base_insider = [0, 0, 0, 0, 0, 0]
+        
+        for i in range(5, -1, -1):
+            time_slot = now - datetime.timedelta(hours=i)
+            hour_str = time_slot.strftime("%H:00")
+            
+            # Query actual occurrences in this hour slot
+            start_time = time_slot.replace(minute=0, second=0, microsecond=0)
+            end_time = start_time + datetime.timedelta(hours=1)
+            
+            slot_blocked = Transaction.objects.filter(
+                status='BLOCKED',
+                created_at__gte=start_time,
+                created_at__lt=end_time
+            ).count()
+            
+            slot_alerts = SecurityAlert.objects.filter(
+                created_at__gte=start_time,
+                created_at__lt=end_time
+            ).count()
+            
+            # Combine baseline seed with actual database occurrences
+            charts.append({
+                "hour": hour_str,
+                "ATO": base_ato[5 - i] + slot_blocked,
+                "Insider": base_insider[5 - i] + slot_alerts
+            })
 
         # Gather recent log events
         events = []

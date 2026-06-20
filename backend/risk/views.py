@@ -5,8 +5,15 @@ from . import state
 
 class SimulateRiskView(APIView):
     def post(self, request):
+        email = request.data.get('email')
         risk_vector = request.data.get('riskVector', 'Normal')
-        state.ACTIVE_RISK_VECTOR = risk_vector
+        
+        if email:
+            if not hasattr(state, 'ACTIVE_RISK_VECTORS'):
+                state.ACTIVE_RISK_VECTORS = {}
+            state.ACTIVE_RISK_VECTORS[email] = risk_vector
+        else:
+            state.ACTIVE_RISK_VECTOR = risk_vector
 
         # Base responses for simulation
         if risk_vector == 'Normal':
