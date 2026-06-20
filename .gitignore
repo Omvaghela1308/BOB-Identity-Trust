@@ -1,0 +1,50 @@
+# Virtual Environments
+backend/venv/
+backend/env/
+venv/
+env/
+ENV/
+
+# Environment Variables
+.env
+backend/.env
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Node.js
+frontend/node_modules/
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+frontend/dist/
+frontend/build/
+dist/
+build/
+
+# Django files
+backend/db.sqlite3
+backend/db.sqlite3-journal
+backend/staticfiles/
+staticfiles/
+*.log
+backend/db.sqlite3-shm
+backend/db.sqlite3-wal
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

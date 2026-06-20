@@ -1,0 +1,1 @@
+ACTIVE_RISK_VECTOR = 'Normal'

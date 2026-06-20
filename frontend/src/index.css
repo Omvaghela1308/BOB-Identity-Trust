@@ -1,0 +1,323 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@layer base {
+  body {
+    @apply text-gray-100 font-sans antialiased overflow-x-hidden;
+    background: linear-gradient(to bottom, #090d16, #05070f);
+    background-attachment: fixed;
+  }
+
+  /* Custom input focus outlines for high-tech feel */
+  input, select, button {
+    @apply transition-all duration-300;
+  }
+}
+
+/* Glassmorphism panel style */
+.glass-panel {
+  background: rgba(18, 18, 20, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.glass-panel-glow-green {
+  background: rgba(18, 18, 20, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(16, 185, 129, 0.38);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+}
+
+.glass-panel-glow-blue {
+  background: rgba(18, 18, 20, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(59, 130, 246, 0.38);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
+}
+
+.glass-panel-glow-red {
+  background: rgba(18, 18, 20, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(239, 68, 68, 0.38);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.15);
+}
+
+/* High-tech scan lines overlay */
+.cyber-scanlines {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Commented out to prevent blurry/hazy text */
+/*
+.cyber-scanlines::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  z-index: 2;
+  background-size: 100% 4px, 3px 100%;
+  pointer-events: none;
+}
+*/
+
+/* Custom Cyber Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #09090b;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3b82f6;
+}
+
+/* Glowing text */
+.text-glow-green {
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+.text-glow-blue {
+  text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+.text-glow-red {
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+/* Circular trust score progress styles */
+.trust-score-circle {
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* =========================================================================
+   Light Theme Support & Style Overrides
+   ========================================================================= */
+.light-theme {
+  background: linear-gradient(to bottom, #f3f4f6, #e5e7eb) !important;
+  color: #1f2937 !important;
+}
+
+.light-theme body {
+  background: linear-gradient(to bottom, #f3f4f6, #e5e7eb) !important;
+  color: #1f2937 !important;
+}
+
+.light-theme .glass-panel {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid rgba(0, 0, 0, 0.22) !important;
+  color: #111827 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+}
+
+.light-theme .glass-panel-glow-green {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(16, 185, 129, 0.5) !important;
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.06) !important;
+  color: #111827 !important;
+}
+
+.light-theme .glass-panel-glow-blue {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(59, 130, 246, 0.5) !important;
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.06) !important;
+  color: #111827 !important;
+}
+
+.light-theme .glass-panel-glow-red {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(239, 68, 68, 0.5) !important;
+  box-shadow: 0 10px 25px rgba(239, 68, 68, 0.06) !important;
+  color: #111827 !important;
+}
+
+.light-theme .text-white {
+  color: #111827 !important;
+}
+
+.light-theme .text-gray-100 {
+  color: #1f2937 !important;
+}
+
+.light-theme .text-gray-200 {
+  color: #374151 !important;
+}
+
+.light-theme .text-gray-300 {
+  color: #4b5563 !important;
+}
+
+.light-theme .text-gray-400 {
+  color: #4b5563 !important;
+}
+
+.light-theme .text-gray-500 {
+  color: #6b7280 !important;
+}
+
+.light-theme .text-gray-600 {
+  color: #9ca3af !important;
+}
+
+.light-theme .bg-\[\#08080a\] {
+  background-color: #f9fafb !important;
+}
+
+.light-theme .bg-\[\#0d0d0f\] {
+  background-color: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.light-theme .bg-\[\#09090b\]\/80 {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.light-theme .bg-black\/30 {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+  border-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.light-theme .bg-black\/40 {
+  background-color: rgba(0, 0, 0, 0.02) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.light-theme .bg-\[\#0d0d0e\] {
+  background-color: #f3f4f6 !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+  color: #111827 !important;
+}
+
+.light-theme .border-white\/5 {
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+.light-theme .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.22) !important;
+}
+
+.light-theme .border-white\/15 {
+  border-color: rgba(0, 0, 0, 0.28) !important;
+}
+
+.light-theme .border-white\/20 {
+  border-color: rgba(0, 0, 0, 0.35) !important;
+}
+
+.light-theme .divide-white\/5 > :not(:last-child) {
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+.light-theme input, .light-theme select {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+  color: #111827 !important;
+}
+
+.light-theme input::placeholder {
+  color: #888888 !important;
+}
+
+.light-theme .text-glow-green,
+.light-theme .text-glow-blue,
+.light-theme .text-glow-red {
+  text-shadow: none !important;
+}
+
+/* Recharts Tooltip override in light theme */
+.light-theme .recharts-default-tooltip {
+  background-color: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  color: #111827 !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+}
+
+.light-theme .recharts-tooltip-item {
+  color: #1f2937 !important;
+}
+
+.light-theme .recharts-cartesian-grid-horizontal line,
+.light-theme .recharts-cartesian-grid-vertical line {
+  stroke: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Animations for Success Overlay */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* =========================================================================
+   Custom Borders for Better Visibility in Dark Mode
+   ========================================================================= */
+.border-white\/5 {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.border-white\/10 {
+  border-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+.border-white\/15 {
+  border-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+.border-white\/20 {
+  border-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.border-cyber-green\/30 {
+  border-color: rgba(16, 185, 129, 0.45) !important;
+}
+
+.border-cyber-blue\/30 {
+  border-color: rgba(59, 130, 246, 0.45) !important;
+}
+
+.border-cyber-red\/30 {
+  border-color: rgba(239, 68, 68, 0.45) !important;
+}
+
+/* =========================================================================
+   Responsive Zoom & Page Scaling (Viewport Optimization)
+   ========================================================================= */
+@media (min-width: 1500px) {
+  body {
+    zoom: 95%;
+  }
+}
+
+@media (min-width: 1920px) {
+  body {
+    zoom: 90%;
+  }
+}
+
+@media (max-height: 850px) {
+  body {
+    zoom: 92%;
+  }
+}
+
+@media (max-height: 750px) {
+  body {
+    zoom: 85%;
+  }
+}
+
+@media (max-height: 650px) {
+  body {
+    zoom: 78%;
+  }
+}
+
