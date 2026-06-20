@@ -1,6 +1,9 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 from .models import User
 
-# Register Custom User Model
-admin.site.register(User, UserAdmin)
+class CustomUserAdmin(admin.ModelAdmin):
+    list_display = ('username', 'email', 'phone', 'aadhaar', 'is_staff', 'is_active')
+    search_fields = ('username', 'email', 'phone')
+    list_filter = ('is_staff', 'is_active', 'is_superuser')
+
+admin.site.register(User, CustomUserAdmin)
